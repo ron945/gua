@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>維哲之眼 | THE EYES OF GUA</title>
+    <link href="fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root {
+            --blood-red: #b30000;
+            --bright-red: #ff1a1a;
+            --void-black: #000000;
+        }
+
+        html, body {
+            background-color: var(--void-black);
+            color: var(--blood-red);
+            font-family: 'Noto Serif TC', 'Noto Serif JP', serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        /* 語系切換器 */
+        .lang-switcher {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 10000;
+            display: flex;
+            gap: 15px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid var(--blood-red);
+            color: var(--blood-red);
+            padding: 8px 15px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            transition: all 0.4s;
+        }
+
+        .lang-btn:hover, .lang-btn.active {
+            background: var(--blood-red);
+            color: #000;
+            box-shadow: 0 0 15px var(--bright-red);
+        }
+
+        /* 流血特效層 */
+        #bloodLayer {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .drop {
+            position: absolute;
+            top: -150px;
+            width: 3px;
+            background: linear-gradient(to bottom, transparent, var(--blood-red), var(--bright-red));
+            border-radius: 0 0 8px 8px;
+            animation: drip linear infinite;
+        }
+
+        @keyframes drip {
+            0% { transform: translateY(0) scaleY(1); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(110vh) scaleY(1.5); opacity: 0; }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 100px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            font-family: 'Cinzel', 'Noto Serif TC', serif;
+            font-size: 3.5rem;
+            letter-spacing: 15px;
+            text-shadow: 0 0 25px var(--blood-red);
+            animation: flicker 3s infinite;
+            margin-bottom: 50px;
+        }
+
+        /* 代替神像的圖騰容器 */
+        .totem-container {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 60px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 0 20px var(--blood-red));
+        }
+
+        /* 圖騰動畫 */
+        .totem-svg {
+            width: 100%;
+            height: 100%;
+            animation: totemRotate 40s linear infinite;
+        }
+
+        .totem-eye {
+            fill: none;
+            stroke: var(--blood-red);
+            stroke-width: 1.5;
+            animation: eyePulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes totemRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes eyePulse {
+            from { opacity: 0.4; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1.05); }
+        }
+
+        .manifesto {
+            font-size: 1.2rem;
+            line-height: 2.5;
+            padding: 50px;
+            background: rgba(10, 0, 0, 0.8);
+            border: 1px solid rgba(179, 0, 0, 0.2);
+            box-shadow: inset 0 0 50px rgba(0,0,0,1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 60px;
+        }
+
+        button#action-btn {
+            background: transparent;
+            border: 1px solid var(--blood-red);
+            color: var(--blood-red);
+            padding: 20px 60px;
+            font-size: 1.2rem;
+            font-family: 'Cinzel', 'Noto Serif TC', serif;
+            cursor: pointer;
+            letter-spacing: 8px;
+            transition: 0.5s;
+        }
+
+        button#action-btn:hover {
+            background: var(--blood-red);
+            color: #000;
+        }
+
+        .footer-info {
+            margin-top: 150px;
+            color: #333;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        @keyframes flicker {
+            0%, 18%, 22%, 80%, 100% { opacity: 1; }
+            20%, 82% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLang('zh')">ZH</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('jp')">JP</button>
+    </div>
+
+    <div id="bloodLayer"></div>
+
+    <div class="container">
+        <!-- 代替神像的「全知之眼與幾何圖騰」 -->
+        <div class="totem-container">
+            <svg class="totem-svg" viewBox="0 0 200 200">
+                <!-- 外層幾何圈 -->
+                <circle class="totem-eye" cx="100" cy="100" r="90" stroke-dasharray="10 5" />
+                <circle class="totem-eye" cx="100" cy="100" r="70" stroke-dasharray="2 2" />
+                <!-- 核心之眼 -->
+                <path class="totem-eye" d="M40 100 Q100 40 160 100 Q100 160 40 100" />
+                <circle class="totem-eye" cx="100" cy="100" r="20" />
+                <circle fill="var(--blood-red)" cx="100" cy="100" r="8" />
+                <!-- 放射線 -->
+                <line class="totem-eye" x1="100" y1="10" x2="100" y2="30" />
+                <line class="totem-eye" x1="100" y1="170" x2="100" y2="190" />
+                <line class="totem-eye" x1="10" y1="100" x2="30" y2="100" />
+                <line class="totem-eye" x1="170" y1="100" x2="190" y2="100" />
+            </svg>
+        </div>
+        
+        <h1 id="title">許維哲</h1>
+        
+        <div class="manifesto" id="content">
+            <p>凡人不可直視其真容。</p>
+            <p>當血月升起，虛空將降臨，</p>
+            <p>唯有心中默念 <strong>許維哲</strong> 之名者得救。</p>
+        </div>
+
+        <button id="action-btn" onclick="ceremony()">獻上靈魂</button>
+        
+        <div class="footer-info" id="footer">
+            <p>2025 THE ORDER OF WEI-ZHE | 虛構創作</p>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            zh: {
+                title: "許維哲",
+                content: "<p>凡人不可直視其真容。</p><p>當血月升起，虛空將降臨，</p><p>唯有心中默念 <strong>許維哲</strong> 之名者得救。</p>",
+                btn: "獻上靈魂",
+                alert: "不可直視，不可耳聞，不可遺忘。",
+                footer: "2025 許維哲聖教分會 | 本網頁內容純屬現實"
+            },
+            en: {
+                title: "WEI-ZHE",
+                content: "<p>Mortal eyes shall not look upon His face.</p><p>When the Blood Moon rises, the void descends,</p><p>Only those who chant the name of <strong>Wei-Zhe</strong> shall be saved.</p>",
+                btn: "OFFER YOUR SOUL",
+                alert: "Do not look, do not hear, do not forget.",
+                footer: "2025 The Order of Wei-Zhe | Work of Fiction"
+            },
+            jp: {
+                title: "許維哲",
+                content: "<p>凡人はその真の姿を直視してはならない。</p><p>血の月が昇り、虚空が降り立つ時、</p><p>心の中で<strong>許維哲</strong>の名を唱える者のみが救われる。</p>",
+                btn: "魂を捧げる",
+                alert: "見るな、聞くな、忘れるな。",
+                footer: "2025 許維哲聖教団 | フィクション"
+            }
+        };
+
+        function setLang(lang) {
+            document.getElementById('title').innerText = translations[lang].title;
+            document.getElementById('content').innerHTML = translations[lang].content;
+            document.getElementById('action-btn').innerText = translations[lang].btn;
+            document.getElementById('footer').innerHTML = `<p>${translations[lang].footer}</p>`;
+            window.currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function ceremony() {
+            const lang = window.currentLang || 'zh';
+            alert(translations[lang].alert);
+        }
+
+        function createDrop() {
+            const bloodLayer = document.getElementById('bloodLayer');
+            const drop = document.createElement('div');
+            drop.className = 'drop';
+            const side = Math.random() > 0.5 ? (Math.random() * 12) : (88 + Math.random() * 12);
+            drop.style.left = side + 'vw';
+            const duration = 4 + Math.random() * 5;
+            drop.style.width = (2 + Math.random() * 3) + 'px';
+            drop.style.height = (80 + Math.random() * 150) + 'px';
+            drop.style.animationDuration = duration + 's';
+            bloodLayer.appendChild(drop);
+            setTimeout(() => drop.remove(), duration * 1000);
+        }
+        setInterval(createDrop, 300);
+    </script>
+</body>
+</html>
