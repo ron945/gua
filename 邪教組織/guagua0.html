@@ -147,23 +147,18 @@
             letter-spacing: 8px;
             transition: 0.5s;
         }
-
-        button#action-btn:hover {
-            background: var(--blood-red);
-            color: #000;
+        button#video-btn {
+            background: transparent;
+            border: 1px solid var(--blood-red);
+            color: var(--blood-red);
+            padding: 20px 60px;
+            font-size: 1.2rem;
+            font-family: 'Cinzel', 'Noto Serif TC', serif;
+            cursor: pointer;
+            letter-spacing: 8px;
+            transition: 0.5s;
         }
 
-        .footer-info {
-            margin-top: 150px;
-            color: #333;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-        }
-
-        @keyframes flicker {
-            0%, 18%, 22%, 80%, 100% { opacity: 1; }
-            20%, 82% { opacity: 0.6; }
-        }
     </style>
 </head>
 <body>
@@ -204,6 +199,10 @@
         </div>
 
         <button id="action-btn" onclick="ceremony()">獻上靈魂</button>
+        <!-- 新增：跳轉影片按鈕 (使用 <a> 標籤模擬按鈕外觀) -->
+        <button id="video-btn" onclick="awakening()">觀看啟示錄</button>
+</div>
+
         
         <div class="footer-info" id="footer">
             <p>2025 THE ORDER OF WEI-ZHE | 虛構創作</p>
@@ -244,6 +243,58 @@
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
         }
+        // 這裡填入您想要開啟的 8 個不同網址
+const revelations = [
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+];
+
+function awakening() {
+    const lang = window.currentLang || 'zh';
+    const body = document.body;
+    let flashCount = 0;
+
+    // --- 1. 閃爍效果恢復區 ---
+    const flashInterval = setInterval(() => {
+        // 交替切換背景顏色
+        body.style.backgroundColor = (flashCount % 2 === 0) ? "#ff1a1a" : "#000000";
+        body.style.filter = (flashCount % 2 === 0) ? "invert(1)" : "none"; // 增加反相閃爍感
+        
+        flashCount++;
+
+        if (flashCount > 8) { // 閃爍 8 次
+            clearInterval(flashInterval);
+            body.style.backgroundColor = "#000000";
+            body.style.filter = "none";
+
+            // --- 2. 噴發分頁區 (閃爍完後觸發) ---
+            // 由於瀏覽器限制，建議先開一個，其餘引導或嘗試延時開啟
+            revelations.forEach((url, index) => {
+                setTimeout(() => {
+                    const win = window.open(url, '_blank');
+                    
+                    // 如果第一個就被擋，直接提醒使用者
+                    if (index === 0 && (!win || win.closed)) {
+                        alert("見證受阻。請允許此網頁的「彈出式視窗」以接收完整啟示。");
+                    }
+                }, index * 200); // 每個間隔 0.2 秒噴出
+            });
+
+            // 3. 最終警告
+            setTimeout(() => {
+                alert(translations[lang].alert);
+            }, 2000);
+        }
+    }, 80); // 閃爍速度：80毫秒
+}
+
+
 
         function ceremony() {
             const lang = window.currentLang || 'zh';
