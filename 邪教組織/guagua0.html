@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>維哲之眼 | THE EYES OF GUA</title>
-    <link href="fonts.googleapis.com" rel="stylesheet">
     <style>
         :root {
             --blood-red: #b30000;
@@ -16,148 +15,297 @@
             background-color: var(--void-black);
             color: var(--blood-red);
             font-family: 'Noto Serif TC', 'Noto Serif JP', serif;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             overflow-x: hidden;
-            overflow-y: auto;
             text-align: center;
+            transition: background-color 0.4s ease-in-out;
         }
 
         /* 語系切換器 */
         .lang-switcher {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            z-index: 10000;
-            display: flex;
-            gap: 15px;
+            position: fixed; top: 30px; right: 30px; z-index: 10000;
+            display: flex; gap: 15px;
         }
 
         .lang-btn {
-            background: transparent;
-            border: 1px solid var(--blood-red);
-            color: var(--blood-red);
-            padding: 8px 15px;
-            cursor: pointer;
-            font-family: 'Cinzel', serif;
-            transition: all 0.4s;
+            background: transparent; border: 1px solid var(--blood-red);
+            color: var(--blood-red); padding: 8px 15px; cursor: pointer;
+            font-family: 'Cinzel', serif; transition: 0.4s;
         }
 
         .lang-btn:hover, .lang-btn.active {
-            background: var(--blood-red);
-            color: #000;
+            background: var(--blood-red); color: #000;
             box-shadow: 0 0 15px var(--bright-red);
         }
 
-        /* 流血特效層 */
+        /* 背景流血層 */
         #bloodLayer {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 999;
         }
 
         .drop {
-            position: absolute;
-            top: -150px;
-            width: 3px;
-            background: linear-gradient(to bottom, transparent, var(--blood-red), var(--bright-red));
-            border-radius: 0 0 8px 8px;
+            position: absolute; top: -150px; width: 3px;
+            background: linear-gradient(to bottom, transparent, var(--blood-red));
             animation: drip linear infinite;
         }
 
         @keyframes drip {
-            0% { transform: translateY(0) scaleY(1); opacity: 0; }
+            0% { transform: translateY(0); opacity: 0; }
             10% { opacity: 1; }
-            100% { transform: translateY(110vh) scaleY(1.5); opacity: 0; }
+            100% { transform: translateY(110vh); opacity: 0; }
         }
 
         .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 100px 20px;
-            position: relative;
-            z-index: 10;
+            max-width: 900px; margin: 0 auto; padding: 100px 20px;
+            position: relative; z-index: 10;
         }
 
         h1 {
-            font-family: 'Cinzel', 'Noto Serif TC', serif;
-            font-size: 3.5rem;
-            letter-spacing: 15px;
-            text-shadow: 0 0 25px var(--blood-red);
-            animation: flicker 3s infinite;
+            font-family: 'Cinzel', serif; font-size: 3.5rem;
+            letter-spacing: 15px; text-shadow: 0 0 25px var(--blood-red);
             margin-bottom: 50px;
         }
 
-        /* 代替神像的圖騰容器 */
-        .totem-container {
-            width: 300px;
-            height: 300px;
-            margin: 0 auto 60px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            filter: drop-shadow(0 0 20px var(--blood-red));
-        }
-
         /* 圖騰動畫 */
-        .totem-svg {
-            width: 100%;
-            height: 100%;
-            animation: totemRotate 40s linear infinite;
-        }
-
-        .totem-eye {
-            fill: none;
-            stroke: var(--blood-red);
-            stroke-width: 1.5;
-            animation: eyePulse 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes totemRotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes eyePulse {
-            from { opacity: 0.4; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1.05); }
-        }
+        .totem-container { width: 250px; height: 250px; margin: 0 auto 40px; filter: drop-shadow(0 0 15px var(--blood-red)); }
+        .totem-svg { animation: rotate 40s linear infinite; width: 100%; height: 100%; }
+        @keyframes rotate { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
         .manifesto {
-            font-size: 1.2rem;
-            line-height: 2.5;
-            padding: 50px;
-            background: rgba(10, 0, 0, 0.8);
-            border: 1px solid rgba(179, 0, 0, 0.2);
-            box-shadow: inset 0 0 50px rgba(0,0,0,1);
-            backdrop-filter: blur(10px);
-            margin-bottom: 60px;
+            background: rgba(10, 0, 0, 0.8); padding: 40px;
+            border: 1px solid rgba(179, 0, 0, 0.2); line-height: 2.5;
+            margin-bottom: 60px; font-size: 1.2rem;
         }
 
-        button#action-btn {
-            background: transparent;
-            border: 1px solid var(--blood-red);
-            color: var(--blood-red);
-            padding: 20px 60px;
-            font-size: 1.2rem;
-            font-family: 'Cinzel', 'Noto Serif TC', serif;
-            cursor: pointer;
-            letter-spacing: 8px;
-            transition: 0.5s;
+        /* 按鈕群組與高對比樣式 */
+        .btn-group { display: flex; justify-content: center; gap: 40px; margin-top: 50px; }
+        .btn-wrapper { position: relative; display: inline-block; }
+
+        button {
+            background: transparent; border: 2px solid var(--blood-red);
+            color: var(--blood-red); padding: 20px 40px; font-size: 1.1rem;
+            font-family: 'Cinzel', serif; cursor: pointer; letter-spacing: 5px;
+            transition: all 0.3s ease; position: relative; z-index: 10;
+            font-weight: bold;
         }
-        button#video-btn {
-            background: transparent;
-            border: 1px solid var(--blood-red);
-            color: var(--blood-red);
-            padding: 20px 60px;
-            font-size: 1.2rem;
-            font-family: 'Cinzel', 'Noto Serif TC', serif;
-            cursor: pointer;
-            letter-spacing: 8px;
-            transition: 0.5s;
+
+        /* 碰到按鈕：紅底黑字 */
+        button:hover {
+            background-color: var(--blood-red);
+            color: #000000;
+            border-color: var(--bright-red);
+            box-shadow: 0 0 30px var(--bright-red);
         }
+
+        /* 按鈕流血容器 */
+        .blood-container {
+            position: absolute; top: 100%; left: 0; width: 100%;
+            height: 150px; pointer-events: none; overflow: hidden;
+        }
+
+        .btn-drop {
+            position: absolute; top: -10px; width: 3px;
+            background: linear-gradient(to bottom, var(--blood-red), transparent);
+            animation: bleedDown 2s ease-in forwards;
+        }
+
+        @keyframes bleedDown {
+            0% { height: 0; opacity: 1; }
+            100% { height: 100px; opacity: 0; transform: translateY(50px); }
+        }
+        /* 眼睛整體的輕微漂浮感 */
+.eye-ball {
+    animation: eyeGlance 5s infinite ease-in-out;
+}
+
+@keyframes eyeGlance {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-2px, 1px); }
+    75% { transform: translate(2px, -1px); }
+}
+
+/* 眨眼動畫：控制眼瞼路徑的變形 */
+.eyelid {
+    transition: transform 0.1s ease-in-out;
+    transform-origin: center;
+}
+
+/* 利用動畫讓上下眼瞼往中間合併 */
+@keyframes blink {
+    0%, 90%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0); } /* 縮放到 0 代表閉合 */
+}
+
+/* 分別控制上下眼瞼的閉合方向 */
+.eyelid.upper {
+    animation: blinkUpper 6s infinite;
+    transform-origin: 100px 100px;
+}
+
+.eyelid.lower {
+    animation: blinkLower 6s infinite;
+    transform-origin: 100px 100px;
+}
+
+@keyframes blinkUpper {
+    0%, 96%, 100% { transform: translateY(0); }
+    98% { transform: translateY(35px); } /* 向下蓋 */
+}
+
+@keyframes blinkLower {
+    0%, 96%, 100% { transform: translateY(0); }
+    98% { transform: translateY(-35px); } /* 向上提 */
+}
+
+/* 讓圖騰外框旋轉稍微慢一點，更有壓迫感 */
+.totem-svg {
+    animation: rotate 60s linear infinite;
+}
+/* 眼球群組：輕微的凝視晃動 */
+.eye-group {
+    animation: eyeScan 8s infinite ease-in-out;
+}
+
+@keyframes eyeScan {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-3px, 1px); }
+    40% { transform: translate(3px, -1px); }
+    60% { transform: translate(-1px, 2px); }
+    80% { transform: translate(2px, 1px); }
+}
+
+/* 擬真眨眼動畫：平日張開，突然快速閉合 */
+.eyelid {
+    transform: scaleY(0); /* 初始隱藏眼皮 */
+    transition: transform 0.1s;
+}
+
+.eyelid.upper {
+    transform-origin: top;
+    animation: realBlinkUpper 7s infinite;
+}
+
+.eyelid.lower {
+    transform-origin: bottom;
+    animation: realBlinkLower 7s infinite;
+}/* 眨眼動畫：上眼皮向下，下眼皮向上 */
+.eyelid-top {
+    animation: blink-top 6s infinite;
+}
+
+.eyelid-bottom {
+    animation: blink-bottom 6s infinite;
+}
+
+@keyframes blink-top {
+    0%, 96%, 100% { transform: translateY(0); }
+    98% { transform: translateY(100px); } /* 瞬間蓋到中間 */
+}
+
+@keyframes blink-bottom {
+    0%, 96%, 100% { transform: translateY(0); }
+    98% { transform: translateY(-100px); } /* 瞬間提至中間 */
+}
+
+/* 讓眼珠有隨機凝視的感覺 */
+.eye-group {
+    animation: gaze 10s infinite ease-in-out;
+}
+
+@keyframes gaze {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-4px, 2px); }
+    50% { transform: translate(4px, -1px); }
+    80% { transform: translate(-2px, -3px); }
+}
+
+/* 讓整隻眼睛微微放大縮小，像是在呼吸 */
+.totem-container {
+    animation: heartbeat 4s infinite ease-in-out;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px var(--blood-red)); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 25px var(--bright-red)); }
+}
+/* 外圈逆時針旋轉 */
+.outer-ring {
+    transform-origin: center;
+    animation: rotateCounter 60s linear infinite;
+}
+
+/* 內圈順時針旋轉 */
+.inner-ring {
+    transform-origin: center;
+    animation: rotateClockwise 30s linear infinite;
+}
+
+@keyframes rotateCounter {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+}
+
+@keyframes rotateClockwise {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 眨眼遮罩動畫（保持擬真快速眨眼） */
+.eyelid-top {
+    animation: blink-top 7s infinite;
+}
+.eyelid-bottom {
+    animation: blink-bottom 7s infinite;
+}
+
+@keyframes blink-top {
+    0%, 96%, 100% { transform: translateY(0); }
+    98% { transform: translateY(100px); }
+}
+@keyframes blink-bottom {
+    0%, 96%, 100% { transform: translateY(0); }
+    98% { transform: translateY(-100px); }
+}
+
+/* 眼球隨機掃視 */
+.eye-group {
+    animation: gaze 12s infinite ease-in-out;
+}
+@keyframes gaze {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-5px, 3px); }
+    50% { transform: translate(5px, -2px); }
+    75% { transform: translate(-3px, -4px); }
+}
+
+/* 整個法陣的呼吸發光效果 */
+.totem-container {
+    animation: portalPulse 4s infinite ease-in-out;
+}
+@keyframes portalPulse {
+    0%, 100% { filter: drop-shadow(0 0 10px var(--blood-red)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 30px var(--bright-red)); transform: scale(1.02); }
+}
+/* 血掌印樣式優化 */
+.handprint {
+    position: fixed;
+    width: 180px; /* 放大掌印 */
+    height: 180px;
+    z-index: 1000; /* 提升層級，確保在背景之上 */
+    pointer-events: none;
+    opacity: 0;
+    fill: #7a0000; /* 深乾血色 */
+    filter: blur(1px) drop-shadow(0 0 8px #5c0000);
+}
+
+/* 拍擊動畫：突然顯現後緩慢滲透 */
+@keyframes handSplat {
+    0% { transform: scale(1.3) rotate(var(--rand-deg)); opacity: 0; }
+    5% { transform: scale(1) rotate(var(--rand-deg)); opacity: 0.8; }
+    80% { opacity: 0.6; }
+    100% { transform: scale(1) rotate(var(--rand-deg)); opacity: 0; }
+}
 
     </style>
 </head>
@@ -172,40 +320,83 @@
     <div id="bloodLayer"></div>
 
     <div class="container">
-        <!-- 代替神像的「全知之眼與幾何圖騰」 -->
         <div class="totem-container">
-            <svg class="totem-svg" viewBox="0 0 200 200">
-                <!-- 外層幾何圈 -->
-                <circle class="totem-eye" cx="100" cy="100" r="90" stroke-dasharray="10 5" />
-                <circle class="totem-eye" cx="100" cy="100" r="70" stroke-dasharray="2 2" />
-                <!-- 核心之眼 -->
-                <path class="totem-eye" d="M40 100 Q100 40 160 100 Q100 160 40 100" />
-                <circle class="totem-eye" cx="100" cy="100" r="20" />
-                <circle fill="var(--blood-red)" cx="100" cy="100" r="8" />
-                <!-- 放射線 -->
-                <line class="totem-eye" x1="100" y1="10" x2="100" y2="30" />
-                <line class="totem-eye" x1="100" y1="170" x2="100" y2="190" />
-                <line class="totem-eye" x1="10" y1="100" x2="30" y2="100" />
-                <line class="totem-eye" x1="170" y1="100" x2="190" y2="100" />
-            </svg>
-        </div>
+    <svg class="totem-svg" viewBox="0 0 200 200">
+        <defs>
+            <!-- 眨眼遮罩 -->
+            <mask id="eye-mask">
+                <rect x="0" y="0" width="200" height="200" fill="white" />
+                <rect class="eyelid-top" x="0" y="-100" width="200" height="100" fill="black" />
+                <rect class="eyelid-bottom" x="0" y="200" width="200" height="100" fill="black" />
+            </mask>
+        </defs>
+
+        <!-- 最外層：慢速逆時針旋轉的刻度圈 -->
+        <g class="outer-ring">
+            <circle cx="100" cy="100" r="98" fill="none" stroke="var(--blood-red)" stroke-width="0.5" stroke-dasharray="2 10" />
+            <circle cx="100" cy="100" r="92" fill="none" stroke="var(--blood-red)" stroke-width="1" stroke-dasharray="30 10" opacity="0.6" />
+        </g>
+
+        <!-- 中間層：快速順時針旋轉的幾何三角 -->
+        <g class="inner-ring">
+            <path d="M100 10 L180 150 L20 150 Z" fill="none" stroke="var(--blood-red)" stroke-width="0.5" opacity="0.4" />
+            <path d="M100 190 L20 50 L180 50 Z" fill="none" stroke="var(--blood-red)" stroke-width="0.5" opacity="0.4" />
+            <circle cx="100" cy="100" r="75" fill="none" stroke="var(--blood-red)" stroke-width="1.5" stroke-dasharray="5 15" />
+        </g>
+
+        <!-- 核心眼睛區域（帶遮罩） -->
+        <g mask="url(#eye-mask)">
+            <!-- 眼白 -->
+            <path d="M30 100 Q100 35 170 100 Q100 165 30 100" fill="#0a0000" stroke="var(--blood-red)" stroke-width="1" />
+            
+            <!-- 眼珠群組 -->
+            <g class="eye-group">
+                <circle cx="100" cy="100" r="30" fill="none" stroke="var(--blood-red)" stroke-width="0.8" opacity="0.6" />
+                <circle class="pupil" cx="100" cy="100" r="15" fill="var(--blood-red)">
+                    <animate attributeName="r" values="13;17;13" dur="4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="93" cy="93" r="3" fill="white" opacity="0.5" />
+            </g>
+        </g>
+
+        <!-- 固定的眼框邊緣 -->
+        <path d="M30 100 Q100 35 170 100 Q100 165 30 100" fill="none" stroke="var(--blood-red)" stroke-width="3" />
         
+        <!-- 四角符文裝飾 -->
+        <g stroke="var(--blood-red)" stroke-width="2" opacity="0.8">
+            <line x1="100" y1="5" x2="100" y2="15" />
+            <line x1="100" y1="185" x2="100" y2="195" />
+            <line x1="5" y1="100" x2="15" y2="100" />
+            <line x1="185" y1="100" x2="195" y2="100" />
+        </g>
+    </svg>
+</div>
+
+
+
+
         <h1 id="title">許維哲</h1>
         
         <div class="manifesto" id="content">
             <p>凡人不可直視其真容。</p>
-            <p>當血月升起，虛空將降臨，</p>
-            <p>唯有心中默念 <strong>許維哲</strong> 之名者得救。</p>
+            <p>當血月升起，虛空將降臨。</p>
+            <p>唯有默念其名者，方能獲得救贖。</p>
         </div>
 
-        <button id="action-btn" onclick="ceremony()">獻上靈魂</button>
-        <!-- 新增：跳轉影片按鈕 (使用 <a> 標籤模擬按鈕外觀) -->
-        <button id="video-btn" onclick="awakening()">觀看啟示錄</button>
-</div>
+        <div class="btn-group">
+            <div class="btn-wrapper">
+                <button id="action-btn" onmouseover="startBleeding(this)" onmouseleave="stopBleeding(this)" onclick="ceremony()">獻上靈魂</button>
+                <div class="blood-container"></div>
+            </div>
 
-        
+            <div class="btn-wrapper">
+                <button id="video-btn" onmouseover="startBleeding(this)" onmouseleave="stopBleeding(this)" onclick="awakening()">觀看啟示錄</button>
+                <div class="blood-container"></div>
+            </div>
+        </div>
+
         <div class="footer-info" id="footer">
-            <p>2025 THE ORDER OF WEI-ZHE | 虛構創作</p>
+            2025 THE ORDER OF WEI-ZHE | 虛構創作
         </div>
     </div>
 
@@ -213,108 +404,145 @@
         const translations = {
             zh: {
                 title: "許維哲",
-                content: "<p>凡人不可直視其真容。</p><p>當血月升起，虛空將降臨，</p><p>唯有心中默念 <strong>許維哲</strong> 之名者得救。</p>",
+                content: "<p>凡人不可直視其真容。</p><p>當血月升起，虛空將降臨。</p><p>唯有默念其名者，方能獲得救贖。</p>",
                 btn: "獻上靈魂",
-                alert: "不可直視，不可耳聞，不可遺忘。",
-                footer: "2025 許維哲聖教分會 | 本網頁內容純屬現實"
+                vBtn: "觀看啟示錄",
+                alert: "不可直視，不可遺忘。你的靈魂已被標記。",
+                footer: "2025 THE ORDER OF WEI-ZHE | 虛構創作"
             },
             en: {
                 title: "WEI-ZHE",
-                content: "<p>Mortal eyes shall not look upon His face.</p><p>When the Blood Moon rises, the void descends,</p><p>Only those who chant the name of <strong>Wei-Zhe</strong> shall be saved.</p>",
-                btn: "OFFER YOUR SOUL",
+                content: "<p>Mortal eyes shall not look upon His face.</p><p>When the Blood Moon rises, the void descends.</p><p>Only those who chant His name shall be saved.</p>",
+                btn: "OFFER SOUL",
+                vBtn: "REVELATION",
                 alert: "Do not look, do not hear, do not forget.",
-                footer: "2025 The Order of Wei-Zhe | Work of Fiction"
+                footer: "2025 THE ORDER OF WEI-ZHE | WORK OF FICTION"
             },
             jp: {
                 title: "許維哲",
-                content: "<p>凡人はその真の姿を直視してはならない。</p><p>血の月が昇り、虚空が降り立つ時、</p><p>心の中で<strong>許維哲</strong>の名を唱える者のみが救われる。</p>",
+                content: "<p>凡人はその真の姿を直視してはならない。</p><p>血の月が昇り、虚空が降り立つ時、</p><p>その名を唱える者のみが救われる。</p>",
                 btn: "魂を捧げる",
+                vBtn: "黙示録を見る",
                 alert: "見るな、聞くな、忘れるな。",
                 footer: "2025 許維哲聖教団 | フィクション"
             }
+        };
+
+        window.onload = function() {
+            startGlobalEffects();
+            glitchEffect();
         };
 
         function setLang(lang) {
             document.getElementById('title').innerText = translations[lang].title;
             document.getElementById('content').innerHTML = translations[lang].content;
             document.getElementById('action-btn').innerText = translations[lang].btn;
-            document.getElementById('footer').innerHTML = `<p>${translations[lang].footer}</p>`;
+            document.getElementById('video-btn').innerText = translations[lang].vBtn;
+            document.getElementById('footer').innerText = translations[lang].footer;
+            
             window.currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-        }
-        // 這裡填入您想要開啟的 8 個不同網址
-const revelations = [
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-];
-
-function awakening() {
-    const lang = window.currentLang || 'zh';
-    const body = document.body;
-    let flashCount = 0;
-
-    // --- 1. 閃爍效果恢復區 ---
-    const flashInterval = setInterval(() => {
-        // 交替切換背景顏色
-        body.style.backgroundColor = (flashCount % 2 === 0) ? "#ff1a1a" : "#000000";
-        body.style.filter = (flashCount % 2 === 0) ? "invert(1)" : "none"; // 增加反相閃爍感
-        
-        flashCount++;
-
-        if (flashCount > 8) { // 閃爍 8 次
-            clearInterval(flashInterval);
-            body.style.backgroundColor = "#000000";
-            body.style.filter = "none";
-
-            // --- 2. 噴發分頁區 (閃爍完後觸發) ---
-            // 由於瀏覽器限制，建議先開一個，其餘引導或嘗試延時開啟
-            revelations.forEach((url, index) => {
-                setTimeout(() => {
-                    const win = window.open(url, '_blank');
-                    
-                    // 如果第一個就被擋，直接提醒使用者
-                    if (index === 0 && (!win || win.closed)) {
-                        alert("見證受阻。請允許此網頁的「彈出式視窗」以接收完整啟示。");
-                    }
-                }, index * 200); // 每個間隔 0.2 秒噴出
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase() === lang);
             });
-
-            // 3. 最終警告
-            setTimeout(() => {
-                alert(translations[lang].alert);
-            }, 2000);
         }
-    }, 80); // 閃爍速度：80毫秒
-}
 
+        // --- 隨機溫和閃爍 ---
+        function glitchEffect() {
+            document.body.style.backgroundColor = (Math.random() > 0.5) ? "#1a0000" : "#000000";
+            setTimeout(() => {
+                document.body.style.backgroundColor = "#000000";
+                setTimeout(glitchEffect, Math.random() * 5000 + 4000);
+            }, 250);
+        }
 
+        // --- 按鈕流血邏輯 ---
+        let bleedIntervals = new Map();
+        function startBleeding(btn) {
+            if (bleedIntervals.has(btn)) return;
+            const container = btn.nextElementSibling;
+            const interval = setInterval(() => {
+                const drop = document.createElement('div');
+                drop.className = 'btn-drop';
+                drop.style.left = Math.random() * btn.offsetWidth + 'px';
+                drop.style.width = (Math.random() * 2 + 2) + 'px';
+                container.appendChild(drop);
+                setTimeout(() => drop.remove(), 2000);
+            }, 150);
+            bleedIntervals.set(btn, interval);
+        }
+
+        function stopBleeding(btn) {
+            if (bleedIntervals.has(btn)) {
+                clearInterval(bleedIntervals.get(btn));
+                bleedIntervals.delete(btn);
+            }
+        }
+
+        // --- 噴發 8 個視窗 ---
+        function awakening() {
+            const targetUrl = "https://www.youtube.com"; // ⚠️ 請自行更換您的影片連結
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const win = window.open(targetUrl, '_blank');
+                    if (!win && i === 0) alert("啟示受阻。請允許網址列右側的彈出式視窗。");
+                }, i * 300);
+            }
+        }
 
         function ceremony() {
             const lang = window.currentLang || 'zh';
             alert(translations[lang].alert);
         }
 
-        function createDrop() {
-            const bloodLayer = document.getElementById('bloodLayer');
-            const drop = document.createElement('div');
-            drop.className = 'drop';
-            const side = Math.random() > 0.5 ? (Math.random() * 12) : (88 + Math.random() * 12);
-            drop.style.left = side + 'vw';
-            const duration = 4 + Math.random() * 5;
-            drop.style.width = (2 + Math.random() * 3) + 'px';
-            drop.style.height = (80 + Math.random() * 150) + 'px';
-            drop.style.animationDuration = duration + 's';
-            bloodLayer.appendChild(drop);
-            setTimeout(() => drop.remove(), duration * 1000);
+        // --- 背景流血 ---
+        function startGlobalEffects() {
+            setInterval(() => {
+                const drop = document.createElement('div');
+                drop.className = 'drop';
+                drop.style.left = Math.random() * 100 + 'vw';
+                drop.style.height = (Math.random() * 100 + 50) + 'px';
+                drop.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                document.getElementById('bloodLayer').appendChild(drop);
+                setTimeout(() => drop.remove(), 5000);
+            }, 400);
         }
-        setInterval(createDrop, 300);
+        // 更清晰的血掌印 SVG 路徑
+const handData = "M40,90 Q30,90 25,80 T30,60 Q35,50 40,60 T50,80 Q55,90 40,90 M20,55 Q10,50 5,35 T15,15 Q25,5 35,20 T25,50 Q22,55 20,55 M45,40 Q40,30 45,10 T65,0 Q75,10 70,30 T55,45 Q50,50 45,40 M70,60 Q75,50 85,45 T95,60 Q95,75 80,85 T65,75 Q65,65 70,60 M5,80 Q-5,75 -10,60 T0,40 Q10,30 20,45 T10,75 Q8,80 5,80";
+
+function createHandprint() {
+    // 建立 SVG 命名空間元素
+    const svgNS = "www.w3.org";
+    const hand = document.createElementNS(svgNS, "svg");
+    hand.setAttribute("viewBox", "0 0 100 100");
+    hand.setAttribute("class", "handprint");
+    
+    // 隨機旋轉與位置
+    const x = Math.random() * (window.innerWidth - 200);
+    const y = Math.random() * (window.innerHeight - 200);
+    const deg = Math.random() * 360;
+    
+    hand.style.left = x + 'px';
+    hand.style.top = y + 'px';
+    hand.style.setProperty('--rand-deg', deg + 'deg');
+    hand.style.animation = "handSplat 7s forwards";
+
+    const path = document.createElementNS(svgNS, "path");
+    path.setAttribute("d", handData);
+    hand.appendChild(path);
+
+    document.body.appendChild(hand);
+
+    // 自動清理
+    setTimeout(() => { hand.remove(); }, 7500);
+
+    // 下一次出現的時間（測試用：改短為 3-7 秒）
+    setTimeout(createHandprint, Math.random() * 4000 + 3000);
+}
+
+// 啟動 (縮短等待時間到 2 秒，方便您立刻檢查)
+setTimeout(createHandprint, 2000);
+
+
     </script>
 </body>
 </html>
