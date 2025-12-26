@@ -229,84 +229,11 @@
     0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px var(--blood-red)); }
     50% { transform: scale(1.05); filter: drop-shadow(0 0 25px var(--bright-red)); }
 }
-/* 外圈逆時針旋轉 */
-.outer-ring {
-    transform-origin: center;
-    animation: rotateCounter 60s linear infinite;
-}
 
-/* 內圈順時針旋轉 */
-.inner-ring {
-    transform-origin: center;
-    animation: rotateClockwise 30s linear infinite;
-}
 
-@keyframes rotateCounter {
-    from { transform: rotate(360deg); }
-    to { transform: rotate(0deg); }
-}
 
-@keyframes rotateClockwise {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
 
-/* 眨眼遮罩動畫（保持擬真快速眨眼） */
-.eyelid-top {
-    animation: blink-top 7s infinite;
-}
-.eyelid-bottom {
-    animation: blink-bottom 7s infinite;
-}
-
-@keyframes blink-top {
-    0%, 96%, 100% { transform: translateY(0); }
-    98% { transform: translateY(100px); }
-}
-@keyframes blink-bottom {
-    0%, 96%, 100% { transform: translateY(0); }
-    98% { transform: translateY(-100px); }
-}
-
-/* 眼球隨機掃視 */
-.eye-group {
-    animation: gaze 12s infinite ease-in-out;
-}
-@keyframes gaze {
-    0%, 100% { transform: translate(0, 0); }
-    25% { transform: translate(-5px, 3px); }
-    50% { transform: translate(5px, -2px); }
-    75% { transform: translate(-3px, -4px); }
-}
-
-/* 整個法陣的呼吸發光效果 */
-.totem-container {
-    animation: portalPulse 4s infinite ease-in-out;
-}
-@keyframes portalPulse {
-    0%, 100% { filter: drop-shadow(0 0 10px var(--blood-red)); transform: scale(1); }
-    50% { filter: drop-shadow(0 0 30px var(--bright-red)); transform: scale(1.02); }
-}
-/* 血掌印樣式優化 */
-.handprint {
-    position: fixed;
-    width: 180px; /* 放大掌印 */
-    height: 180px;
-    z-index: 1000; /* 提升層級，確保在背景之上 */
-    pointer-events: none;
-    opacity: 0;
-    fill: #7a0000; /* 深乾血色 */
-    filter: blur(1px) drop-shadow(0 0 8px #5c0000);
-}
-
-/* 拍擊動畫：突然顯現後緩慢滲透 */
-@keyframes handSplat {
-    0% { transform: scale(1.3) rotate(var(--rand-deg)); opacity: 0; }
-    5% { transform: scale(1) rotate(var(--rand-deg)); opacity: 0.8; }
-    80% { opacity: 0.6; }
-    100% { transform: scale(1) rotate(var(--rand-deg)); opacity: 0; }
-}
-
+        .footer-info { margin-top: 100px; font-size: 0.8rem; opacity: 0.5; letter-spacing: 2px; }
     </style>
 </head>
 <body>
@@ -323,55 +250,40 @@
         <div class="totem-container">
     <svg class="totem-svg" viewBox="0 0 200 200">
         <defs>
-            <!-- 眨眼遮罩 -->
+            <!-- 眨眼遮罩：控制中間白色區域顯示與否 -->
             <mask id="eye-mask">
                 <rect x="0" y="0" width="200" height="200" fill="white" />
+                <!-- 這兩塊黑色矩形就是眼皮，會往中間合攏 -->
                 <rect class="eyelid-top" x="0" y="-100" width="200" height="100" fill="black" />
                 <rect class="eyelid-bottom" x="0" y="200" width="200" height="100" fill="black" />
             </mask>
         </defs>
 
-        <!-- 最外層：慢速逆時針旋轉的刻度圈 -->
-        <g class="outer-ring">
-            <circle cx="100" cy="100" r="98" fill="none" stroke="var(--blood-red)" stroke-width="0.5" stroke-dasharray="2 10" />
-            <circle cx="100" cy="100" r="92" fill="none" stroke="var(--blood-red)" stroke-width="1" stroke-dasharray="30 10" opacity="0.6" />
-        </g>
+        <!-- 背景裝飾 -->
+        <circle cx="100" cy="100" r="90" fill="none" stroke="var(--blood-red)" stroke-width="0.5" stroke-dasharray="5 5" opacity="0.4" />
 
-        <!-- 中間層：快速順時針旋轉的幾何三角 -->
-        <g class="inner-ring">
-            <path d="M100 10 L180 150 L20 150 Z" fill="none" stroke="var(--blood-red)" stroke-width="0.5" opacity="0.4" />
-            <path d="M100 190 L20 50 L180 50 Z" fill="none" stroke="var(--blood-red)" stroke-width="0.5" opacity="0.4" />
-            <circle cx="100" cy="100" r="75" fill="none" stroke="var(--blood-red)" stroke-width="1.5" stroke-dasharray="5 15" />
-        </g>
-
-        <!-- 核心眼睛區域（帶遮罩） -->
+        <!-- 受到遮罩控制的眼球群組 -->
         <g mask="url(#eye-mask)">
-            <!-- 眼白 -->
+            <!-- 眼白/眼窩 -->
             <path d="M30 100 Q100 35 170 100 Q100 165 30 100" fill="#0a0000" stroke="var(--blood-red)" stroke-width="1" />
             
-            <!-- 眼珠群組 -->
+            <!-- 眼珠 -->
             <g class="eye-group">
+                <!-- 虹膜線條 -->
                 <circle cx="100" cy="100" r="30" fill="none" stroke="var(--blood-red)" stroke-width="0.8" opacity="0.6" />
+                <!-- 瞳孔 -->
                 <circle class="pupil" cx="100" cy="100" r="15" fill="var(--blood-red)">
-                    <animate attributeName="r" values="13;17;13" dur="4s" repeatCount="indefinite" />
+                    <animate attributeName="r" values="13;16;13" dur="4s" repeatCount="indefinite" />
                 </circle>
+                <!-- 反光點 -->
                 <circle cx="93" cy="93" r="3" fill="white" opacity="0.5" />
             </g>
         </g>
 
-        <!-- 固定的眼框邊緣 -->
+        <!-- 固定不動的眼框（確保眨眼時外框還在） -->
         <path d="M30 100 Q100 35 170 100 Q100 165 30 100" fill="none" stroke="var(--blood-red)" stroke-width="3" />
-        
-        <!-- 四角符文裝飾 -->
-        <g stroke="var(--blood-red)" stroke-width="2" opacity="0.8">
-            <line x1="100" y1="5" x2="100" y2="15" />
-            <line x1="100" y1="185" x2="100" y2="195" />
-            <line x1="5" y1="100" x2="15" y2="100" />
-            <line x1="185" y1="100" x2="195" y2="100" />
-        </g>
     </svg>
 </div>
-
 
 
 
@@ -480,7 +392,7 @@
 
         // --- 噴發 8 個視窗 ---
         function awakening() {
-            const targetUrl = "https://www.youtube.com"; // ⚠️ 請自行更換您的影片連結
+            const targetUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; // ⚠️ 請自行更換您的影片連結
             for (let i = 0; i < 8; i++) {
                 setTimeout(() => {
                     const win = window.open(targetUrl, '_blank');
@@ -506,43 +418,6 @@
                 setTimeout(() => drop.remove(), 5000);
             }, 400);
         }
-        // 更清晰的血掌印 SVG 路徑
-const handData = "M40,90 Q30,90 25,80 T30,60 Q35,50 40,60 T50,80 Q55,90 40,90 M20,55 Q10,50 5,35 T15,15 Q25,5 35,20 T25,50 Q22,55 20,55 M45,40 Q40,30 45,10 T65,0 Q75,10 70,30 T55,45 Q50,50 45,40 M70,60 Q75,50 85,45 T95,60 Q95,75 80,85 T65,75 Q65,65 70,60 M5,80 Q-5,75 -10,60 T0,40 Q10,30 20,45 T10,75 Q8,80 5,80";
-
-function createHandprint() {
-    // 建立 SVG 命名空間元素
-    const svgNS = "www.w3.org";
-    const hand = document.createElementNS(svgNS, "svg");
-    hand.setAttribute("viewBox", "0 0 100 100");
-    hand.setAttribute("class", "handprint");
-    
-    // 隨機旋轉與位置
-    const x = Math.random() * (window.innerWidth - 200);
-    const y = Math.random() * (window.innerHeight - 200);
-    const deg = Math.random() * 360;
-    
-    hand.style.left = x + 'px';
-    hand.style.top = y + 'px';
-    hand.style.setProperty('--rand-deg', deg + 'deg');
-    hand.style.animation = "handSplat 7s forwards";
-
-    const path = document.createElementNS(svgNS, "path");
-    path.setAttribute("d", handData);
-    hand.appendChild(path);
-
-    document.body.appendChild(hand);
-
-    // 自動清理
-    setTimeout(() => { hand.remove(); }, 7500);
-
-    // 下一次出現的時間（測試用：改短為 3-7 秒）
-    setTimeout(createHandprint, Math.random() * 4000 + 3000);
-}
-
-// 啟動 (縮短等待時間到 2 秒，方便您立刻檢查)
-setTimeout(createHandprint, 2000);
-
-
     </script>
 </body>
 </html>
