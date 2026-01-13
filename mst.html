@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>測驗挑戰 - 概數大師 2026</title>
+    <!-- 引用統一的樣式表 -->
+    <link rel="stylesheet" href="ms.css">
+    <style>
+        /* 測驗頁面專屬樣式 */
+        .quiz-wrapper {
+            position: relative; z-index: 2;
+            text-align: center;
+        }
+
+        /* 懸浮回主頁按鈕 (與學習頁保持一致) */
+        .home-float {
+            position: fixed; top: 20px; left: 20px; z-index: 100;
+            background: var(--primary); color: white;
+            padding: 12px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: 0.3s; border: 2px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .home-float:hover { transform: scale(1.1) rotate(-2deg); background: #5649c0; }
+
+        /* 針對測驗按鈕的顏色微調 (使用綠色系區分測驗) */
+        .quiz-btn:hover {
+            border-color: var(--secondary) !important;
+            box-shadow: 0 20px 40px rgba(0, 184, 148, 0.3) !important;
+        }
+
+        .icon-large { font-size: 4rem; margin-bottom: 20px; display: block; }
+        
+        .description { opacity: 0.7; font-size: 0.95rem; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <!-- 背景畫布 -->
+    <canvas id="mathBackground"></canvas>
+
+        <!-- 顯眼的回首頁按鈕 -->
+    <a href="ms.html" class="home-float">🏠 回到主頁面</a>
+
+    <div class="container quiz-wrapper">
+        <header style="margin-bottom: 50px;">
+            <h1 style="font-size: 3rem; text-shadow: 0 0 15px var(--secondary);">🎯 測驗挑戰中心</h1>
+            <p>準備好檢驗你的學習成果了嗎？</p>
+        </header>
+
+        <div class="card-group">
+            <!-- 單項練習按鈕：跳轉至 mst1.html -->
+            <a href="mst1.html" class="big-btn quiz-btn" style="text-decoration: none;">
+                <span class="icon-large">🧩</span>
+                <h2>單項練習</h2>
+                <p>針對特定觀念加強訓練</p>
+                <div class="description">進位 / 捨去 / 四捨五入</div>
+            </a>
+
+            <!-- 綜合挑戰按鈕：跳轉至 mst2.html -->
+            <a href="mst2.html" class="big-btn quiz-btn" style="text-decoration: none;">
+                <span class="icon-large">🌟</span>
+                <h2>綜合挑戰</h2>
+                <p>隨機混合所有題型</p>
+                <div class="description">終極實力大考驗</div>
+            </a>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- 引用統一的 JS 特效 -->
+    <script src="ms.js"></script>
+
+    <script>
+        // 點擊後的互動邏輯 (下一步我們會實作測驗內容)
+        function startSingleQuiz() {
+            alert("即將進入單項練習模式！\n你可以選擇特定主題進行強化。");
+            // location.href = 'mst_single.html'; // 這是我們之後要做的頁面
+        }
+
+        function startMixedQuiz() {
+            alert("即將進入綜合挑戰模式！\n所有題型將隨機出現，準備好了嗎？");
+            // location.href = 'mst_mixed.html'; // 這是我們之後要做的頁面
+        }
+    </script>
+</body>
+</html>

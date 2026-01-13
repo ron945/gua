@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>知識學習 - 概數大師 2026</title>
+    <!-- 引用統一的樣式表 -->
+    <link rel="stylesheet" href="ms.css">
+    <style>
+        .study-wrapper { position: relative; z-index: 2; max-width: 900px; margin: 40px auto; padding: 20px; }
+        
+        /* 懸浮回主頁 - 加強互動感 */
+        .home-float {
+            position: fixed; top: 20px; left: 20px; z-index: 100;
+            background: var(--primary); color: white; padding: 12px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: 0.3s; border: 2px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .home-float:hover { transform: scale(1.1) rotate(-2deg); background: #5649c0; }
+
+        /* 教學重點卡片 */
+        .concept-card {
+            background: rgba(108, 92, 231, 0.15);
+            border-left: 8px solid var(--primary);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .formula-box {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 15px 0;
+            border: 1px solid var(--primary);
+            letter-spacing: 5px;
+        }
+
+        .cut-line { color: #ff7675; font-weight: bold; margin: 0 5px; text-decoration: underline; }
+
+        /* 練習區 */
+        .practice-zone {
+            border: 2px dashed var(--accent);
+            padding: 25px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight { color: var(--accent); font-weight: bold; }
+        
+        .ans-area { 
+            margin-top: 20px; padding: 20px; background: var(--accent); color: #0f0c29; 
+            border-radius: 12px; cursor: pointer; text-align: left; font-weight: bold; 
+            transition: 0.3s;
+            position: relative;
+        }
+        
+        /* 互動效果：答案卡彈出 */
+        .ans-area.active {
+            animation: popCheck 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: white !important;
+        }
+
+        .refresh-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: none; border: 1px solid var(--accent);
+            color: var(--accent); padding: 5px 15px;
+            border-radius: 8px; cursor: pointer;
+            transition: 0.3s;
+            z-index: 5;
+        }
+        .refresh-btn:hover { background: var(--accent); color: #0f0c29; transform: rotate(15deg); }
+        .refresh-btn:active { transform: scale(0.9); }
+
+        /* 數字閃爍特效 */
+        .number-flash {
+            display: inline-block;
+            animation: flashGreen 0.4s ease;
+        }
+
+        /* 粒子元件 */
+        .confetti {
+            position: absolute;
+            width: 8px; height: 8px;
+            pointer-events: none;
+            border-radius: 20px;
+            z-index: 99;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popCheck { 0% { transform: scale(0.95); } 100% { transform: scale(1); } }
+        @keyframes flashGreen {
+            0% { color: white; transform: scale(1.2); }
+            100% { color: var(--accent); transform: scale(1); }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="mathBackground"></canvas>
+    <a href="ms.html" class="home-float">🏠 回到主頁面</a>
+
+    <div class="study-wrapper">
+        <header style="text-align: center; margin-bottom: 30px;">
+            <h1 style="font-size: 2.8rem; text-shadow: 0 0 15px var(--primary); margin: 0;">📖 觀念探索中心</h1>
+            <p style="opacity: 0.8;">2026 數位數學課：理解省略，掌握進位！</p>
+        </header>
+
+    <div class="tab-group">
+        <button class="tab-btn active" onclick="updatePage('ceil', this)">無條件進位</button>
+        <button class="tab-btn" onclick="updatePage('floor', this)">無條件捨去</button>
+        <button class="tab-btn" onclick="updatePage('round', this)">四捨五入</button>
+    </div>
+
+        <div id="infoBox">
+            <!-- 內容由 JS 動態注入 -->
+        </div>
+    </div>
+
+    <script src="ms.js"></script>
+    <script>
+        let currentMode = 'ceil';
+        let currentExplanation = "";
+
+        function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        // 2026 互動效果：噴射粒子
+        function createConfetti(x, y) {
+            const colors = ['#f1c40f', '#a29bfe', '#00b894', '#ff7675', '#ffffff'];
+            for (let i = 0; i < 30; i++) {
+                const div = document.createElement('div');
+                div.className = 'confetti';
+                div.style.left = x + 'px';
+                div.style.top = y + 'px';
+                div.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                document.body.appendChild(div);
+
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 8 + 4;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+                let opacity = 1;
+
+                const move = () => {
+                    div.style.left = (parseFloat(div.style.left) + vx) + 'px';
+                    div.style.top = (parseFloat(div.style.top) + vy) + 'px';
+                    opacity -= 0.02;
+                    div.style.opacity = opacity;
+                    if (opacity > 0) requestAnimationFrame(move);
+                    else div.remove();
+                };
+                requestAnimationFrame(move);
+            }
+        }
+
+        const studyData = {
+            ceil: {
+                title: "🔼 觀念：無條件進位",
+                rule: "取概數到指定位數時，將該位數後的數字通通<span class='highlight'>省略</span>。只要被省略的數字<b>不是 0</b>，就要在前一位<b>進 1</b>。",
+                formula: "4 3 <span class='cut-line'>|</span> 2 1 → 進位 → <span class='highlight'>4 4 0 0</span>",
+                tip: "技巧：取到百位就在百位後畫線，線後有數字，百位數就加 1。"
+            },
+            floor: {
+                title: "🔽 觀念：無條件捨去",
+                rule: "將指定位數後的數字通通<span class='highlight'>省略（變為 0）</span>。不管那些數字是多少，都不會進位。",
+                formula: "4 3 <span class='cut-line'>|</span> 8 9 → 捨去 → <span class='highlight'>4 3 0 0</span>",
+                tip: "技巧：取到百位，不管後面的數字有多大，通通切掉變成 0。"
+            },
+            round: {
+                title: "⚖️ 觀念：四捨五入",
+                rule: "觀察指定位數的<span class='highlight'>下一位</span>：如果是 0,1,2,3,4 就<span class='highlight'>捨去</span>；如果是 5,6,7,8,9 就<span class='highlight'>進位</span>。",
+                formula: "4 3 <span class='cut-line'>|</span> <span style='color:#74b9ff'>6</span> 1 → 6 滿五進位 → <span class='highlight'>4 4 0 0</span>",
+                tip: "技巧：取到百位就看十位，十位滿 5 就幫百位加 1。"
+            }
+        };
+
+        function updatePage(mode, btn) {
+            if(btn) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = mode;
+            }
+            
+            const box = document.getElementById('infoBox');
+            const concept = studyData[currentMode];
+            const quiz = generatePractice(currentMode);
+            currentExplanation = quiz.a;
+
+            box.style.opacity = "0";
+            setTimeout(() => {
+                box.innerHTML = `
+                    <div class="concept-card">
+                        <h2 style="color:var(--primary); margin-top:0;">${concept.title}</h2>
+                        <p>${concept.rule}</p>
+                        <div class="formula-box">${concept.formula}</div>
+                        <p style="font-size:0.95rem; opacity:0.8;">💡 ${concept.tip}</p>
+                    </div>
+
+                    <div class="practice-zone">
+                        <button class="refresh-btn" onclick="updatePage('${currentMode}')">🔄 換一題練習</button>
+                        <h4 style="margin:0; color:var(--accent);">🎯 隨機練習：找找切割線</h4>
+                        <p style="font-size:1.3rem; margin:15px 0;">題目：<span class="number-flash">${quiz.q}</span></p>
+                        <div class="ans-area" id="ansBtn" onclick="revealAns(event)">點擊顯示「省略與進位」解析</div>
+                    </div>
+                `;
+                box.style.opacity = "1";
+            }, 200);
+        }
+
+        function generatePractice(type) {
+            const n = rnd(1100, 9999);
+            const targets = [
+                {name:'十位', v:10, p:'個位'}, 
+                {name:'百位', v:100, p:'十位'}, 
+                {name:'千位', v:1000, p:'百位'}
+            ];
+            const t = targets[rnd(0, 2)];
+            
+            if (type === 'ceil') {
+                const rem = n % t.v;
+                const res = rem === 0 ? n : (Math.floor(n/t.v)*t.v + t.v);
+                return {
+                    q: `將 <span class="highlight">${n.toLocaleString()}</span> 取到 <span class="highlight">${t.name}</span>是多少？`,
+                    a: `解析：取到${t.name}，後面的省略部分是 ${rem}。${rem===0?'因為後方剛好是 0，不進位。':'因為後方不是 0，所以前一位要進 1。'}<br>👉 答案是：<span class='highlight'>${res.toLocaleString()}</span>`
+                };
+            } else if (type === 'floor') {
+                const res = Math.floor(n/t.v)*t.v;
+                return {
+                    q: `將 <span class="highlight">${n.toLocaleString()}</span> 取到 <span class="highlight">${t.name}</span>是多少？`,
+                    a: `解析：取到${t.name}，不論後面數字是多少，通通省略變 0。<br>👉 答案是：<span class='highlight'>${res.toLocaleString()}</span>`
+                };
+            } else {
+                const nextDigit = Math.floor((n % t.v) / (t.v / 10));
+                const res = Math.round(n / t.v) * t.v;
+                return {
+                    q: `將 <span class="highlight">${n.toLocaleString()}</span> 取到 <span class="highlight">${t.name}</span>是多少？`,
+                    a: `解析：取到${t.name}，要看下一位(${t.p})，下一位是 ${nextDigit}。${nextDigit>=5?'滿 5 所以要進位。':'不滿 5 所以直接捨去。'}<br>👉 答案大約是：<span class='highlight'>${res.toLocaleString()}</span>`
+                };
+            }
+        }
+
+        function revealAns(e) {
+            const btn = document.getElementById('ansBtn');
+            if(btn.classList.contains('active')) return;
+
+            // 觸發粒子特效
+            const x = e.pageX || (window.innerWidth/2);
+            const y = e.pageY || (window.innerHeight/2);
+            createConfetti(x, y);
+
+            btn.innerHTML = currentExplanation;
+            btn.classList.add('active');
+            btn.style.color = "#0f0c29";
+            btn.onclick = null;
+        }
+
+        window.onload = () => updatePage('ceil', document.querySelector('.tab-btn'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>概數大師 - 入口首頁</title>
+    <link rel="stylesheet" href="ms.css">
+    <style>
+        /* 1. 確保背景底色正確，且畫布完全鋪滿 */
+        body, html {
+            background-color: #0f0c29 !important; /* 核心深藍色 */
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 2. 這是最關鍵的一步：把畫布鎖定在最底層 */
+        #mathBackground {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; /* 置於最底層 */
+            pointer-events: none; /* 穿透點擊，不影響按鈕 */
+            display: block;
+        }
+
+        /* 3. 確保中間的容器是透明的，否則會遮住背景 */
+        .overlay, .container, .main-menu {
+            background: transparent !important;
+            position: relative;
+            z-index: 1; /* 確保內容在畫布之上 */
+        }
+
+        /* 4. 2026 微調：讓內容不要被邊緣切到 */
+        .main-menu {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="mathBackground"></canvas>
+    <div class="overlay">
+        <header>
+            <h1>🔢 概數大師挑戰賽</h1>
+            <p>請選擇您要進行的項目</p>
+        </header>
+        <main class="main-menu">
+            <!-- 跳轉到 mss.html (學習) -->
+            <div class="menu-card" onclick="location.href='mss.html'">
+                <div class="icon">📖</div>
+                <h2>觀念學習</h2>
+            </div>
+            <!-- 跳轉到 mst.html (測驗) -->
+            <div class="menu-card" onclick="location.href='mst.html'">
+                <div class="icon">🎯</div>
+                <h2>測驗挑戰</h2>
+            </div>
+        </main>
+    </div>
+    <script src="home.js"></script>
+</body>
+</html>

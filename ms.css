@@ -1,0 +1,254 @@
+/* 1. 基礎變數設定 */
+:root {
+    --bg-dark: #0f0c29;
+    --card-bg: rgba(255, 255, 255, 0.08);
+    --text-color: #ffffff;
+    --primary: #6c5ce7;   /* 學習紫色 */
+    --secondary: #00b894; /* 測驗綠色 */
+    --accent: #f1c40f;    /* 強調黃色 */
+}
+
+/* 2. 全域重置與背景設定 */
+body, html {
+    margin: 0; padding: 0; width: 100%; min-height: 100vh;
+    background-color: var(--bg-dark);
+    font-family: 'Microsoft JhengHei', sans-serif;
+    color: var(--text-color);
+    /* 注意：首頁可設 hidden，但學習/測驗頁面內容多，建議改為 auto */
+    overflow-x: hidden; 
+}
+
+/* 3. 背景畫布：關鍵修正 */
+#mathBackground {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1; /* 修正：必須為負值，內容才不會被背景擋住點不到 */
+    pointer-events: none; /* 確保滑鼠點擊穿透畫布 */
+}
+
+/* 4. 內容外層容器：通用型 */
+.container, .overlay {
+    position: relative; z-index: 1; /* 確保內容在畫布之上 */
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+header { text-align: center; margin-bottom: 40px; }
+header h1 { font-size: 3rem; margin: 0; text-shadow: 0 0 20px rgba(108, 92, 231, 0.8); }
+
+/* 5. 卡片與按鈕通用設計 (mss 和 mst 都能用) */
+.card-group, .main-menu { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+
+.menu-card, .big-btn {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* 增加相容性 */
+    width: 280px; padding: 40px;
+    border-radius: 30px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-decoration: none; color: white; /* 針對連結優化 */
+}
+
+.menu-card:hover, .big-btn:hover {
+    transform: translateY(-15px) scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--primary);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.menu-card .icon { font-size: 4rem; margin-bottom: 20px; }
+.menu-card h2 { font-size: 1.8rem; margin: 10px 0; }
+
+/* 針對測驗按鈕的顏色區分 */
+.quiz-card:hover { border-color: var(--secondary); }
+
+/* 6. 學習/測驗專用的內容展示盒 */
+.display-box {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    width: 100%; max-width: 800px;
+    padding: 35px; border-radius: 25px;
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-top: 30px;
+    line-height: 1.8;
+}
+
+/* 7. 切換按鈕 (Tab Buttons) */
+.tab-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn {
+    padding: 10px 20px; border-radius: 12px;
+    border: 2px solid var(--primary); background: transparent;
+    color: white; cursor: pointer; transition: 0.3s;
+    font-size: 1rem;
+}
+.tab-btn.active { background: var(--primary); font-weight: bold; }
+/* 粒子特效容器 */
+.particle-container {
+    position: absolute; pointer-events: none; z-index: 10;
+}
+
+/* 答案卡出現時的縮放動畫 */
+.ans-area.active {
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 切換題目時的數字閃爍效果 */
+.number-flash {
+    animation: flashGreen 0.3s ease;
+}
+
+@keyframes flashGreen {
+    0% { color: var(--accent); }
+    50% { color: #fff; text-shadow: 0 0 15px var(--accent); }
+    100% { color: var(--accent); }
+}
+
+/* 磁力感按鈕 */
+.refresh-btn:active, .nav-btn:active {
+    transform: scale(0.9);
+}
+/* --- 按鈕組與互動設計 --- */
+.tab-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+    perspective: 1000px; /* 為 3D 效果做準備 */
+}
+
+.tab-btn {
+    padding: 15px 30px;
+    border-radius: 15px;
+    border: 2px solid var(--primary);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+}
+
+/* 懸浮效果：放大並加強邊框亮度 */
+.tab-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    background: rgba(108, 92, 231, 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 點擊效果：沉陷感 */
+.tab-btn:active {
+    transform: translateY(2px) scale(0.95);
+}
+
+/* 啟用狀態：發光效果與底部條 */
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: white;
+    box-shadow: 0 0 20px var(--primary), 0 0 40px rgba(108, 92, 231, 0.4);
+    transform: translateY(-2px);
+}
+
+/* 2026 微互動：按鈕內部的流光效果 */
+.tab-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    transition: 0.5s;
+    pointer-events: none;
+}
+
+.tab-btn:hover::after {
+    left: 100%;
+    transition: 0.5s;
+}
+/* 攻擊特效：白閃 */
+.flash-white { animation: flashWhite 0.2s ease-out; }
+@keyframes flashWhite { 0% { background: #fff; } 100% { background: var(--bg-dark); } }
+
+/* 攻擊特效：紅閃 */
+.flash-red { animation: flashRed 0.2s ease-out; }
+@keyframes flashRed { 0% { background: #ff7675; } 100% { background: var(--bg-dark); } }
+
+/* 斬擊特效 */
+.slash {
+    position: absolute; width: 5px; height: 200px;
+    background: #ffeb3b; box-shadow: 0 0 20px #fff;
+    transform: rotate(45deg); pointer-events: none;
+    z-index: 15; animation: slashAnim 0.3s ease-out forwards;
+}
+@keyframes slashAnim {
+    0% { transform: translate(-100px, -100px) rotate(45deg) scaleY(0); opacity: 1; }
+    100% { transform: translate(100px, 100px) rotate(45deg) scaleY(1); opacity: 0; }
+}
+
+/* 受擊晃動 */
+.shake-it { animation: shakeEffect 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes shakeEffect {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+/* 強化攻擊指令顯示 */
+#modeTitle {
+    display: inline-block;
+    font-size: 2.2rem; /* 大幅放大 */
+    font-weight: 900;
+    padding: 10px 40px;
+    background: rgba(0, 0, 0, 0.5); /* 深色背景襯托 */
+    border-radius: 50px;
+    border: 3px solid var(--accent); /* 黃色粗邊框 */
+    color: var(--accent);
+    text-shadow: 0 0 15px var(--accent), 0 0 30px rgba(241, 196, 15, 0.5); /* 霓虹發光 */
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 指令進場動畫 */
+.mode-pop {
+    animation: modeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes modeIn {
+    0% { transform: scale(0.5) translateY(-50px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* 題目數字強化 */
+#qContent {
+    font-size: 2rem;
+    color: #fff;
+    margin: 25px 0;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 15px;
+}
+#mathBackground {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.6; /* 控制整體背景亮度 */
+    mix-blend-mode: screen; /* 讓白色符號在深色背景上更閃耀 */
+}

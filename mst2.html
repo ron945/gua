@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>概數魔王挑戰 - 2026 數位學習版</title>
+    <link rel="stylesheet" href="ms.css">
+    <style>
+        /* 逃離戰場按鈕樣式 */
+.home-float {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    background: var(--primary); /* 使用您定義的學習紫色 */
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.home-float:hover {
+    transform: scale(1.1) rotate(-3deg);
+    background: #5649c0;
+    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+    border-color: var(--accent); /* 懸浮時邊框變黃色 */
+}
+
+.home-float:active {
+    transform: scale(0.95);
+}
+        /* 戰鬥專用佈局 */
+        .battle-wrapper {
+            position: relative; z-index: 2;
+            max-width: 800px; margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        /* 頂部血量條 (HP) */
+        .status-header {
+            display: flex; justify-content: space-between; gap: 20px;
+            background: rgba(0, 0, 0, 0.7); padding: 20px;
+            border-radius: 25px; backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .hp-group { flex: 1; }
+        .hp-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; }
+        .hp-bar-bg { height: 14px; background: #222; border-radius: 10px; overflow: hidden; border: 1px solid #444; }
+        .hp-fill { height: 100%; transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+        #playerHpFill { background: linear-gradient(90deg, #00b894, #55efc4); box-shadow: 0 0 10px #00b894; }
+        #enemyHpFill { background: linear-gradient(90deg, #ff7675, #d63031); box-shadow: 0 0 10px #ff7675; }
+
+        /* 魔王動畫區 */
+        .boss-area {
+            height: 250px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; position: relative;
+        }
+        .boss-sprite {
+            font-size: 8rem; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
+            animation: bossFloat 3s infinite ease-in-out; transition: 0.2s;
+        }
+        @keyframes bossFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+        /* 題目與指令卡片 */
+        .action-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px); border-radius: 30px;
+            padding: 30px; text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* 四選一按鈕網格 */
+        .options-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;
+        }
+        .opt-btn {
+            background: rgba(108, 92, 231, 0.2); border: 2px solid var(--primary);
+            color: white; padding: 18px; border-radius: 15px; font-size: 1.4rem;
+            cursor: pointer; transition: all 0.3s; font-weight: bold;
+        }
+        .opt-btn:hover { background: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .opt-btn:active { transform: scale(0.95); }
+
+        /* 戰鬥傷害字體 */
+        .damage-txt {
+            position: absolute; font-size: 3rem; font-weight: 900;
+            pointer-events: none; animation: damageFly 0.8s forwards; z-index: 10;
+        }
+        @keyframes damageFly { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: translateY(-100px) scale(1.5); } }
+
+        /* 錯誤解析覆蓋層 */
+        #errorOverlay {
+            display: none; position: fixed; inset: 0; background: rgba(214, 48, 49, 0.96);
+            z-index: 1000; align-items: center; justify-content: center; padding: 30px;
+        }
+        .error-box { background: white; color: #333; padding: 40px; border-radius: 30px; max-width: 500px; text-align: center; }
+        
+        /* 受傷震動動畫 */
+        @keyframes shake { 0%, 100% { transform: translate(0,0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(5px, -5px); } 60% { transform: translate(-5px, -5px); } 80% { transform: translate(5px, 5px); } }
+    </style>
+</head>
+<body>
+    <canvas id="mathBackground"></canvas>
+    <a href="ms.html" class="home-float">🏠 逃離戰鬥</a>
+
+    <div class="battle-wrapper">
+        <!-- 血量顯示欄 -->
+        <div class="status-header">
+            <div class="hp-group">
+                <div class="hp-label"><span>勇者 (HP)</span><span id="pHpTxt">7 / 7</span></div>
+                <div class="hp-bar-bg"><div id="playerHpFill" class="hp-fill" style="width: 100%"></div></div>
+            </div>
+            <div class="hp-group">
+                <div class="hp-label"><span>魔王 (HP)</span><span id="eHpTxt">9 / 9</span></div>
+                <div class="hp-bar-bg"><div id="enemyHpFill" class="hp-fill" style="width: 100%"></div></div>
+            </div>
+        </div>
+
+        <!-- 魔王動畫區 -->
+        <div class="boss-area" id="bossZone">
+            <div id="boss" class="boss-sprite">👹</div>
+        </div>
+
+        <!-- 戰鬥指令(題目)區 -->
+        <div class="action-card">
+            <h3 id="modeTitle" style="color: var(--accent); margin:0;">準備進入戰鬥...</h3>
+            <div id="qContent" style="font-size: 1.8rem; margin: 20px 0; font-weight: bold;"></div>
+            <div class="options-grid" id="optionsGroup">
+                <!-- 由 JS 動態生成 4 個按鈕 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 答錯時的解析彈窗 -->
+    <div id="errorOverlay">
+        <div class="error-box">
+            <h1 style="color: #d63031; margin-top: 0;">💥 被魔王反擊！</h1>
+            <p id="errorExp" style="font-size: 1.3rem; line-height: 1.6; margin: 20px 0;"></p>
+            <button onclick="closeError()" class="tab-btn active" style="width:100%; background:#d63031; border:none; padding:15px; color:white; border-radius:10px; cursor:pointer;">重整旗鼓</button>
+        </div>
+    </div>
+
+    <script src="ms.js"></script>
+    <script>
+        // 設定遊戲數值：勝利需答對 9 題，失敗 7 題則結束
+        let pHp = 7, pMax = 7;
+        let eHp = 9, eMax = 9;
+        let currentCorrectAns = 0;
+        let currentExp = "";
+
+        const bossIcons = ['👹', '🐉', '👾', '👿', '🤖'];
+
+        function nextRound() {
+            if (pHp <= 0 || eHp <= 0) return;
+
+            // 1. 生成 100k 以內的隨機題目
+            const n = Math.floor(Math.random() * 90000) + 10000; 
+            const modes = ['ceil', 'floor', 'round'];
+            const m = modes[Math.floor(Math.random() * 3)];
+            const targets = [{n:'十位',v:10}, {n:'百位',v:100}, {n:'千位',v:1000}, {n:'萬位',v:10000}];
+            const t = targets[Math.floor(Math.random() * 4)];
+
+            const modeNames = {ceil:'無條件進位', floor:'無條件捨去', round:'四捨五入'};
+            document.getElementById('modeTitle').innerText = `【${modeNames[m]}攻擊】`;
+            document.getElementById('qContent').innerHTML = `將 <span class="highlight">${n.toLocaleString()}</span> 取到 <span class="highlight">${t.n}</span>`;
+
+            // 2. 計算正確答案與解析
+            let ans = 0;
+            if(m === 'ceil') {
+                ans = (n % t.v === 0) ? n : (Math.floor(n/t.v)*t.v + t.v);
+                currentExp = `解析：取到${t.n}，後方不為0就要進位。${n.toLocaleString()} 的 ${t.n} 後面還有數字，所以前一位要加 1。答案：${ans.toLocaleString()}`;
+            } else if(m === 'floor') {
+                ans = Math.floor(n/t.v)*t.v;
+                currentExp = `解析：取到${t.n}，不論後面數字是多少，通通變成 0。答案：${ans.toLocaleString()}`;
+            } else {
+                ans = Math.round(n / t.v) * t.v;
+                const next = Math.floor((n % t.v) / (t.v / 10));
+                currentExp = `解析：取到${t.n}要看下一位。下一位是 ${next}，${next>=5?'滿 5 所以進位':'不滿 5 直接捨去'}。答案：${ans.toLocaleString()}`;
+            }
+            currentCorrectAns = ans;
+
+            // 3. 生成 4 個選項 (正確 1 個 + 混淆 3 個)
+            let opts = new Set([ans]);
+            while(opts.size < 4) {
+                // 產生接近正確答案的干擾數字
+                let offset = (Math.floor(Math.random() * 5) - 2) * t.v;
+                let fake = ans + offset;
+                if(fake > 0 && fake !== ans) opts.add(fake);
+            }
+
+            const grid = document.getElementById('optionsGroup');
+            grid.innerHTML = "";
+            // 將選項洗牌後顯示
+            [...opts].sort(() => Math.random() - 0.5).forEach(val => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn';
+                btn.innerText = val.toLocaleString();
+                btn.onclick = () => handleChoice(val);
+                grid.appendChild(btn);
+            });
+        }
+
+        function handleChoice(val) {
+            if (val === currentCorrectAns) {
+                // 答對：魔王扣血
+                eHp--;
+                createPopText("CRITICAL HIT!", "#f1c40f", "bossZone");
+                const b = document.getElementById('boss');
+                b.style.transform = "scale(0.7) translateX(30px)";
+                b.style.filter = "brightness(5) hue-rotate(90deg)";
+                setTimeout(() => { b.style.transform = ""; b.style.filter = ""; }, 200);
+                if(typeof createConfetti === 'function') createConfetti(window.innerWidth/2, window.innerHeight/3);
+            } else {
+                // 答錯：勇者扣血並彈出解析
+                pHp--;
+                createPopText("OUCH!", "#ff7675", "playerHpFill");
+                document.getElementById('errorExp').innerText = currentExp;
+                document.getElementById('errorOverlay').style.display = 'flex';
+                document.body.style.animation = "shake 0.3s ease-in-out";
+                setTimeout(()=> document.body.style.animation = "", 300);
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('pHpTxt').innerText = `${pHp} / ${pMax}`;
+            document.getElementById('eHpTxt').innerText = `${eHp} / ${eMax}`;
+            document.getElementById('playerHpFill').style.width = (pHp/pMax*100) + "%";
+            document.getElementById('enemyHpFill').style.width = (eHp/eMax*100) + "%";
+
+            if (eHp <= 0) {
+                alert("🎉 勝利！你成功擊敗了概數魔王！");
+                location.href = 'ms.html';
+            } else if (pHp <= 0) {
+                alert("💀 戰敗... 回去多練習概數觀念吧！");
+                location.href = 'ms.html';
+            } else if (document.getElementById('errorOverlay').style.display !== 'flex') {
+                nextRound();
+            }
+        }
+
+        function createPopText(txt, color, targetId) {
+            const div = document.createElement('div');
+            div.className = 'damage-txt';
+            div.innerText = txt;
+            div.style.color = color;
+            document.getElementById(targetId).appendChild(div);
+            setTimeout(() => div.remove(), 800);
+        }
+
+        function closeError() {
+            document.getElementById('errorOverlay').style.display = 'none';
+            nextRound();
+        }
+
+        window.onload = () => {
+            // 初始化原有的 Canvas 背景特效
+            if(typeof init === 'function') init(); 
+            // 隨機選一個魔王圖示
+            document.getElementById('boss').innerText = bossIcons[Math.floor(Math.random()*bossIcons.length)];
+            nextRound();
+        };
+    </script>
+</body>
+</html>

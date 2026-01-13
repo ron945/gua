@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>單項練習 - 概數修行場</title>
+    <link rel="stylesheet" href="ms.css">
+    <style>
+        /* 繼承戰鬥樣式並新增選擇介面 */
+        .battle-wrapper { position: relative; z-index: 2; max-width: 800px; margin: 20px auto; padding: 0 20px; }
+        
+        /* 初始選擇畫面 */
+        #modeSelect {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 70vh; gap: 30px; animation: fadeIn 0.5s ease;
+        }
+        .select-card {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+            padding: 30px; border-radius: 30px; border: 2px solid var(--primary);
+            width: 100%; max-width: 500px; cursor: pointer; transition: 0.3s;
+            text-align: center;
+        }
+        .select-card:hover { transform: scale(1.05); background: var(--primary); border-color: white; }
+        .select-card h2 { margin: 0; font-size: 2rem; }
+
+        /* 戰鬥介面 (預設隱藏) */
+        #battleZone { display: none; }
+
+        /* 攻擊指令強化 */
+        #modeTitle {
+            display: inline-block; font-size: 2.2rem; font-weight: 900;
+            padding: 12px 45px; background: rgba(0, 0, 0, 0.6);
+            border-radius: 60px; border: 4px solid var(--accent);
+            color: var(--accent); text-shadow: 0 0 15px var(--accent);
+            margin-bottom: 20px;
+        }
+
+        /* 戰鬥相關 CSS ... (其餘與 mst2 相同) */
+        .status-header { display: flex; justify-content: space-between; gap: 20px; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 25px; }
+        .hp-bar-bg { height: 14px; background: #222; border-radius: 10px; overflow: hidden; }
+        .hp-fill { height: 100%; transition: width 0.5s ease; }
+        #playerHpFill { background: #00b894; } #enemyHpFill { background: #ff7675; }
+        .boss-sprite { font-size: 8rem; animation: bossFloat 3s infinite ease-in-out; text-align: center; }
+        @keyframes bossFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .opt-btn { background: rgba(108,92,231,0.2); border: 2px solid var(--primary); color: white; padding: 20px; border-radius: 18px; font-size: 1.5rem; cursor: pointer; font-weight: bold; }
+        .opt-btn:hover { background: var(--primary); }
+        #errorOverlay { display: none; position: fixed; inset: 0; background: rgba(214,48,49,0.97); z-index: 1000; align-items: center; justify-content: center; padding: 30px; }
+        .error-box { background: white; color: #333; padding: 40px; border-radius: 30px; text-align: center; max-width: 500px; }
+        .slash { position: absolute; width: 8px; height: 250px; background: white; box-shadow: 0 0 20px #ffeb3b; transform: rotate(45deg); z-index: 10; animation: slashAnim 0.3s forwards; }
+        @keyframes slashAnim { 0% { transform: translate(-150px,-150px) rotate(45deg) scaleY(0); } 100% { transform: translate(150px,150px) rotate(45deg) scaleY(1.2); opacity: 0; } }
+        .home-float { position: fixed; top: 20px; left: 20px; z-index: 100; background: var(--primary); color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <canvas id="mathBackground"></canvas>
+    <a href="ms.html" class="home-float">🏠 結束練習</a>
+
+    <div class="battle-wrapper">
+        <!-- 階段 1：選擇題型 -->
+        <div id="modeSelect">
+            <h1 style="font-size: 2.5rem; text-shadow: 0 0 15px var(--primary);">⚔️ 選擇你的修行領域</h1>
+            <div class="select-card" onclick="startPractice('ceil')">
+                <h2>🔼 無條件進位</h2>
+                <p>將魔王向上推入下一個位數！</p>
+            </div>
+            <div class="select-card" onclick="startPractice('floor')">
+                <h2>🔽 無條件捨去</h2>
+                <p>斬斷魔王多餘的數字！</p>
+            </div>
+            <div class="select-card" onclick="startPractice('round')">
+                <h2>⚖️ 四捨五入</h2>
+                <p>運用精準的審判之力！</p>
+            </div>
+        </div>
+
+        <!-- 階段 2：戰鬥介面 -->
+        <div id="battleZone">
+            <div class="status-header">
+                <div style="flex:1">
+                    <div style="display:flex; justify-content:space-between"><span>勇者 HP</span><span id="pHpTxt">7/7</span></div>
+                    <div class="hp-bar-bg"><div id="playerHpFill" class="hp-fill" style="width:100%"></div></div>
+                </div>
+                <div style="flex:1; margin-left:20px;">
+                    <div style="display:flex; justify-content:space-between"><span>小魔王 HP</span><span id="eHpTxt">3/3</span></div>
+                    <div class="hp-bar-bg"><div id="enemyHpFill" class="hp-fill" style="width:100%"></div></div>
+                </div>
+            </div>
+
+            <div style="height:250px; display:flex; align-items:center; justify-content:center; position:relative;" id="bossZone">
+                <div id="boss" class="boss-sprite">👿</div>
+            </div>
+
+            <div class="action-card" style="background: rgba(255,255,255,0.1); padding: 35px; border-radius: 35px; text-align: center;">
+                <div id="modeTitle">修行中...</div>
+                <div id="qContent" style="font-size: 1.8rem; margin: 15px 0; color: white;"></div>
+                <div class="options-grid" id="optionsGroup"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 解析層 -->
+    <div id="errorOverlay">
+        <div class="error-box">
+            <h1 style="color: #d63031;">💥 修行受阻！</h1>
+            <p id="errorExp" style="font-size: 1.3rem; margin: 20px 0;"></p>
+            <button onclick="closeError()" class="tab-btn active" style="width:100%; background:#d63031; color:white; border:none; padding:15px; border-radius:15px; cursor:pointer;">重整旗鼓</button>
+        </div>
+    </div>
+
+    <script src="ms.js"></script>
+    <script>
+        let pHp = 7, pMax = 7;
+        let eHp = 3, eMax = 3; // 2026 設定：單項練習血量較少
+        let currentMode = '';
+        let currentCorrectAns = 0;
+        let currentExp = "";
+
+        // 選擇題型後開始
+        function startPractice(mode) {
+            currentMode = mode;
+            document.getElementById('modeSelect').style.display = 'none';
+            document.getElementById('battleZone').style.display = 'block';
+            nextRound();
+        }
+
+        function nextRound() {
+            if (pHp <= 0 || eHp <= 0) return;
+
+            const n = Math.floor(Math.random() * 90000) + 10000;
+            const targets = [{n:'十位',v:10}, {n:'百位',v:100}, {n:'千位',v:1000}, {n:'萬位',v:10000}];
+            const t = targets[Math.floor(Math.random() * 4)];
+
+            const modeNames = {ceil:'無條件進位修行', floor:'無條件捨去修行', round:'四捨五入修行'};
+            const modeColors = {ceil:'#a29bfe', floor:'#55efc4', round:'#f1c40f'};
+            
+            const titleEl = document.getElementById('modeTitle');
+            titleEl.innerText = modeNames[currentMode];
+            titleEl.style.borderColor = modeColors[currentMode];
+            titleEl.style.color = modeColors[currentMode];
+            titleEl.style.textShadow = `0 0 20px ${modeColors[currentMode]}`;
+
+            document.getElementById('qContent').innerHTML = `將 <span style="font-size:2.4rem; color:var(--accent)">${n.toLocaleString()}</span> 取到 <span style="color:white; text-decoration:underline">${t.n}</span>`;
+
+            // 計算邏輯
+            let ans = 0;
+            if(currentMode === 'ceil') {
+                ans = (n % t.v === 0) ? n : (Math.floor(n/t.v)*t.v + t.v);
+                currentExp = `取到${t.n}，後面有數字不為0就要進位。答案是 ${ans.toLocaleString()}`;
+            } else if(currentMode === 'floor') {
+                ans = Math.floor(n/t.v)*t.v;
+                currentExp = `取到${t.n}，後面直接通通變 0。答案是 ${ans.toLocaleString()}`;
+            } else {
+                ans = Math.round(n / t.v) * t.v;
+                const next = Math.floor((n % t.v) / (t.v / 10));
+                currentExp = `取到${t.n}看下一位(${next})，${next>=5?'滿 5 進位':'捨去'}。答案約 ${ans.toLocaleString()}`;
+            }
+            currentCorrectAns = ans;
+
+            // 選項生成
+            let opts = new Set([ans]);
+            while(opts.size < 4) {
+                let fake = ans + (Math.floor(Math.random() * 5) - 2) * t.v;
+                if(fake > 0 && fake !== ans) opts.add(fake);
+            }
+
+            const grid = document.getElementById('optionsGroup');
+            grid.innerHTML = "";
+            [...opts].sort(() => Math.random() - 0.5).forEach(val => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn';
+                btn.innerText = val.toLocaleString();
+                btn.onclick = () => handleChoice(val);
+                grid.appendChild(btn);
+            });
+        }
+
+        function handleChoice(val) {
+            const boss = document.getElementById('boss');
+            if (val === currentCorrectAns) {
+                eHp--;
+                document.body.style.backgroundColor = "rgba(255,255,255,0.2)";
+                setTimeout(() => document.body.style.backgroundColor = "", 150);
+                
+                const s = document.createElement('div');
+                s.className = 'slash';
+                document.getElementById('bossZone').appendChild(s);
+                setTimeout(() => s.remove(), 300);
+
+                boss.style.transform = "translateX(50px) scale(0.8)";
+                setTimeout(() => boss.style.transform = "", 200);
+                if(typeof createConfetti === 'function') createConfetti(window.innerWidth/2, window.innerHeight/3);
+            } else {
+                pHp--;
+                document.body.style.backgroundColor = "rgba(214, 48, 49, 0.4)";
+                document.getElementById('errorExp').innerText = currentExp;
+                document.getElementById('errorOverlay').style.display = 'flex';
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('pHpTxt').innerText = `${pHp} / 7`;
+            document.getElementById('eHpTxt').innerText = `${eHp} / 3`;
+            document.getElementById('playerHpFill').style.width = (pHp/7*100) + "%";
+            document.getElementById('enemyHpFill').style.width = (eHp/3*100) + "%";
+
+            if (eHp <= 0) { alert("修行成功！魔王消失了！"); location.href = 'ms.html'; }
+            else if (pHp <= 0) { alert("修行失敗... 再去複習一下觀念吧！"); location.href = 'ms.html'; }
+            else if (document.getElementById('errorOverlay').style.display !== 'flex') nextRound();
+        }
+
+        function closeError() {
+            document.getElementById('errorOverlay').style.display = 'none';
+            document.body.style.backgroundColor = "";
+            nextRound();
+        }
+
+        window.onload = () => { if(typeof init === 'function') init(); };
+    </script>
+</body>
+</html>
